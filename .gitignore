@@ -1,0 +1,35 @@
+# Executables
+
+
+# folders
+secrets/
+
+# environment variables
+.env
+
+# Libraries
+*.a
+
+# MacOS
+.DS_Store
+
+# IDE
+.vscode/
+.idea/
+
+# Debug
+*.dSYM/
+*.d
+
+# Logs
+*.log
+valgrind-out.txt
+
+
+# Test files
+tester/
+temp_*
+
+
+# 42 subject
+*.pdf
