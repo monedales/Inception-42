@@ -22,6 +22,28 @@ services:
       - db_root_password
       - db_password
 
+  # ---- WordPress + php-fpm : application layer ------------------------------
+  # depends on mariadb (it connects to the DB), but depends_on only waits for
+  # the container to START, not for the DB to be READY — the retry loop in
+  # wordpress/tools/setup.sh handles the actual readiness.
+  wordpress:
+    container_name: wordpress
+    image: wordpress                     # image name == service name (subject rule)
+    build: ./requirements/wordpress      # build from our own Dockerfile
+    restart: always
+    depends_on:
+      - mariadb
+    env_file:
+      - .env
+    networks:
+      - inception
+    volumes:
+      - wordpress:/var/www/html          # WordPress files live here
+    secrets:
+      - db_password
+      - wp_admin_password
+      - wp_user_password
+
 # ---- Network : private bridge so containers resolve each other by name ------
 networks:
   inception:
@@ -38,6 +60,12 @@ volumes:
       type: none
       o: bind
       device: /home/maria-ol/data/mariadb
+  wordpress:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /home/maria-ol/data/wordpress
 
 # ---- Secrets : sensitive values mounted at /run/secrets/ inside containers --
 secrets:
@@ -45,3 +73,7 @@ secrets:
     file: ../secrets/db_root_password.txt
   db_password:
     file: ../secrets/db_password.txt
+  wp_admin_password:
+    file: ../secrets/wp_admin_password.txt
+  wp_user_password:
+    file: ../secrets/wp_user_password.txt
