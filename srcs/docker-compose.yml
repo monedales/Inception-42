@@ -44,6 +44,26 @@ services:
       - wp_admin_password
       - wp_user_password
 
+  # ---- NGINX : edge layer, the ONLY public entry point ---------------------
+  # Last to start (it proxies to wordpress). Publishes 443 to the host, so it
+  # is the single door into the stack. Shares the wordpress volume so it can
+  # serve the site's static files and resolve the .php paths for php-fpm.
+  nginx:
+    container_name: nginx
+    image: nginx                         # image name == service name (subject rule)
+    build: ./requirements/nginx          # build from our own Dockerfile
+    restart: always
+    depends_on:
+      - wordpress
+    env_file:
+      - .env
+    networks:
+      - inception
+    ports:
+      - "443:443"                        # the ONLY port published to the host
+    volumes:
+      - wordpress:/var/www/html          # same WordPress files as the wp container
+
 # ---- Network : private bridge so containers resolve each other by name ------
 networks:
   inception:
