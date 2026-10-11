@@ -1,0 +1,47 @@
+# =============================================================================
+# docker-compose.yml — declarative topology of the Inception stack
+# Services are built from local Dockerfiles (no ready-made images).
+# =============================================================================
+
+services:
+
+  # ---- MariaDB : database layer ---------------------------------------------
+  # its the first container to be created since don't depend on the others 
+  mariadb:
+    container_name: mariadb
+    image: mariadb                       # image name == service name (subject rule)
+    build: ./requirements/mariadb        # build from our own Dockerfile
+    restart: always                      # bring the container back after a crash
+    env_file:
+      - .env
+    networks:
+      - inception
+    volumes:
+      - mariadb:/var/lib/mysql           # MariaDB stores all its data here
+    secrets:
+      - db_root_password
+      - db_password
+
+# ---- Network : private bridge so containers resolve each other by name ------
+networks:
+  inception:
+    driver: bridge
+
+# ---- Volumes : named volumes bound to /home/maria-ol/data on the host -------
+# They are declared as named volumes (not bind mounts in the service), but the
+# local driver with o=bind makes their data land in the host folder the subject
+# requires. 'docker volume inspect' will show the /home/maria-ol/data path.
+volumes:
+  mariadb:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /home/maria-ol/data/mariadb
+
+# ---- Secrets : sensitive values mounted at /run/secrets/ inside containers --
+secrets:
+  db_root_password:
+    file: ../secrets/db_root_password.txt
+  db_password:
+    file: ../secrets/db_password.txt
