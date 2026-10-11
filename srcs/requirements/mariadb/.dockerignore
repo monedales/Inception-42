@@ -1,0 +1,10 @@
+# Git stuff
+.git
+.gitignore
+
+# Docs
+*.md
+README*
+
+# OS junk
+.DS_Store
