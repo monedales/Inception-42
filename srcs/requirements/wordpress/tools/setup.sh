@@ -19,7 +19,7 @@ cd /var/www/html
 # The container may start before MariaDB is accepting connections. We keep
 # pinging it over the network until it answers, instead of failing early.
 echo "[wp] Waiting for MariaDB at mariadb:3306..."
-until mariadb-admin ping --host=mariadb --user="$MYSQL_USER" --password="$DB_PASSWORD" --silent 2>/dev/null; do
+until mariadb-admin ping --host=mariadb --user="$MYSQL_USER" --password="$DB_PASSWORD"; do
 	sleep 2
 done
 echo "[wp] MariaDB is up."
