@@ -11,6 +11,10 @@ set -e   # stop the script if any command fails
 DB_ROOT_PASSWORD=$(cat /run/secrets/db_root_password)
 DB_PASSWORD=$(cat /run/secrets/db_password)
 
+# Ensure the socket directory exists with the right ownership
+mkdir -p /run/mysqld
+chown -R mysql:mysql /run/mysqld /var/lib/mysql
+
 # ---- First run? -------------------------------------------------------------
 # /var/lib/mysql/mysql holds MariaDB's internal system tables. If it's missing,
 # the database has never been initialized -> this is the first run.
