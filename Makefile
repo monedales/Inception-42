@@ -59,6 +59,7 @@ logs:
 # WARNING: this deletes the Docker named volumes (-v). Host data stays.
 clean:
 	@docker compose -p $(NAME) -f $(COMPOSE) down -v
+	@docker volume rm -f $(NAME)_mariadb $(NAME)_wordpress > $(HIDE) 2>&1 || true
 	@echo " $(CLEANED_MSG)"
 
 # Runs clean, then deletes the host data folder AND the project images.
