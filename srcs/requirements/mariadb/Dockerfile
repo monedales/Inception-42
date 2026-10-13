@@ -5,7 +5,8 @@ FROM debian:bookworm
 # so the downloaded package lists don't stay baked into the image.
 RUN apt-get update && apt-get install -y \
     mariadb-server \
-    && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/* \
+    && rm -rf /var/lib/mysql/* 
 
 # Our own server config (makes MariaDB listen on the network, not only locally)
 COPY conf/50-server.cnf /etc/mysql/mariadb.conf.d/50-server.cnf
