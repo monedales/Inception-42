@@ -104,9 +104,9 @@ FAIL		= $(FAILMARK) $(NAME)		$(CORAL)Failed$(RESET)
 CLEANED_MSG	= $(RMMARK) $(NAME)		$(ROSE)Removed$(RESET)
 FCLEANED	= $(RMMARK) Data folder		$(ROSE)Removed$(RESET)
 
-NX_FLN		= $(RMMARK) Image $(NAME)-nginx	$(ROSE)Removed$(RESET)
-WP_FLN		= $(RMMARK) Image $(NAME)-wordpress	$(ROSE)Removed$(RESET)
-DB_FLN		= $(RMMARK) Image $(NAME)-mariadb	$(ROSE)Removed$(RESET)
+NX_FLN		= $(RMMARK) Image nginx	$(ROSE)Removed$(RESET)
+WP_FLN		= $(RMMARK) Image wordpress	$(ROSE)Removed$(RESET)
+DB_FLN		= $(RMMARK) Image mariadb	$(ROSE)Removed$(RESET)
 
 # Banner ----------------------------------------------------------------------
 

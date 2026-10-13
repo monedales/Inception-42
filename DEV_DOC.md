@@ -1,16 +1,78 @@
-# DEV_DOC — Developer Documentation
+# DEV_DOC - Developer Documentation
 
 This document describes how to set up, build, run and manage the Inception
 stack as a developer.
+
+## 0. Install Docker on the VM 🐳
+
+If Docker isn't installed on the VM yet, follow these steps first (based on a
+Debian VM; `login` is your 42 login -> the user running the project). Skip this section
+if `docker` and the Compose plugin are already available.
+
+### Step 1 - Update the system + install dependencies
+
+```bash
+sudo apt update && sudo apt upgrade -y
+sudo apt install -y ca-certificates curl gnupg git make
+```
+
+### Step 2 - Add Docker's official GPG key
+
+```bash
+sudo install -m 0755 -d /etc/apt/keyrings
+curl -fsSL https://download.docker.com/linux/debian/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+sudo chmod a+r /etc/apt/keyrings/docker.gpg
+```
+
+### Step 3 - Add the Docker repository
+
+```bash
+echo \
+  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/debian \
+  $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
+  sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+```
+
+### Step 4 - Install Docker + Compose
+
+```bash
+sudo apt update
+sudo apt install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
+```
+
+### Step 5 - Use Docker without sudo
+
+```bash
+sudo usermod -aG docker login
+```
+
+### Step 6 - ⚠️ Log out and log back in
+
+Log out of GNOME and log back in (or reboot the VM). This is required for the
+`docker` group membership to take effect. Without it, running Docker without
+`sudo` won't work.
+
+### Step 7 - Test the installation
+
+```bash
+docker run hello-world
+```
+
+If you see **"Hello from Docker!"** without needing `sudo`, Docker is working. ✅
+
+```bash
+docker --version
+docker compose version
+```
 
 ## 1. Prerequisites
 
 Before building the project, make sure you have:
 
-- A **Linux virtual machine** — the whole project is meant to run inside a VM.
+- A **Linux virtual machine**, since the whole project is meant to run inside a VM.
 - **Docker Engine** and the **Docker Compose** plugin.
-- **make** — to run the Makefile targets.
-- **git** — to clone the repository.
+- **make**, to run the Makefile targets.
+- **git**, to clone the repository.
 
 Verify the Docker installation with:
 
@@ -19,12 +81,12 @@ docker --version
 docker compose version
 ```
 
-The domain `maria-ol.42.fr` must resolve to the local machine. Add this line
+The domain `login.42.fr` must resolve to the local machine. Add this line
 to `/etc/hosts` once per machine (it maps the project domain to localhost,
 where NGINX listens):
 
 ```bash
-echo "127.0.0.1 maria-ol.42.fr" | sudo tee -a /etc/hosts
+echo "127.0.0.1 login.42.fr" | sudo tee -a /etc/hosts
 ```
 
 ## 2. Project structure
@@ -71,8 +133,8 @@ Inception/
 
 The project needs two kinds of configuration, neither of which is versioned:
 
-- **`.env`** — non-sensitive variables (domain, database name, usernames...).
-- **`secrets/`** — one file per password, mounted into the containers at runtime.
+- **`.env`**, non-sensitive variables (domain, database name, usernames...).
+- **`secrets/`**, one file per password, mounted into the containers at runtime.
 
 ### Create the `.env`
 
@@ -113,10 +175,10 @@ This runs `docker compose up -d --build`: it builds the three images (mariadb,
 wordpress, nginx) from their Dockerfiles and starts the containers in the
 background.
 
-Once it finishes, open the site at `https://maria-ol.42.fr`.
+Once it finishes, open the site at `https://login.42.fr`.
 
 > The certificate is self-signed, so the browser shows a security warning the
-> first time — this is expected. Accept it to continue.
+> first time, this is expected. Accept it to continue.
 
 ## 5. Useful commands
 
@@ -136,14 +198,34 @@ Once it finishes, open the site at `https://maria-ol.42.fr`.
 
 ### Docker inspection & debugging
 
-| Command                             | What it does                        |
-|-------------------------------------|-------------------------------------|
-| `docker compose -p inception ps`    | List the project containers         |
-| `docker logs <container>`           | Show the logs of one container      |
-| `docker exec -it <container> bash`  | Open a shell inside a container     |
-| `docker volume ls`                  | List the volumes                    |
-| `docker volume inspect <volume>`    | Inspect a volume (shows host path)  |
-| `docker network ls`                 | List the networks                   |
+| Command                                                                 | What it does                                 |
+|-------------------------------------------------------------------------|----------------------------------------------|
+| `docker compose -p inception ps`                                        | List the project containers                  |
+| `docker logs <container>`                                               | Show the logs of one container               |
+| `docker exec -it <container> bash`                                      | Open a shell inside a container              |
+| `docker volume ls`                                                      | List the volumes                             |
+| `docker volume inspect <volume>`                                        | Inspect a volume (shows host path)           |
+| `docker volume inspect inception_mariadb --format '{{ index .Options "device" }}'` | Print only the volume's host path (no verbose output) |
+| `docker network ls`                                                     | List the networks                            |
+| `docker container prune -f`                                             | Remove all stopped containers                |
+| `docker rm <id>`                                                        | Remove a specific container                  |
+| `docker rmi -f <image>`                                                 | Force-remove an image                        |
+
+### Testing TLS
+
+The stack must serve HTTPS only, and reject TLS versions older than 1.2. Verify
+both with `curl` (`--insecure` skips the self-signed cert check):
+
+```bash
+curl -I --insecure --tlsv1.2 https://login.42.fr     # should work
+curl -I --insecure --tls-max 1.1 https://login.42.fr  # should FAIL (that's good!)
+```
+
+Confirm that the domain points to localhost (but isn't literally `localhost`):
+
+```bash
+grep login /etc/hosts
+```
 
 ### Accessing the database
 
@@ -170,18 +252,49 @@ Both persistent volumes are named volumes bound to a folder on the host:
 
 | Volume      | Container path   | Host path                       |
 |-------------|------------------|---------------------------------|
-| `mariadb`   | `/var/lib/mysql` | `/home/maria-ol/data/mariadb`   |
-| `wordpress` | `/var/www/html`  | `/home/maria-ol/data/wordpress` |
+| `mariadb`   | `/var/lib/mysql` | `/home/login/data/mariadb`   |
+| `wordpress` | `/var/www/html`  | `/home/login/data/wordpress` |
 
 Because the data lives on the host (not inside the containers), it **survives**
 container restarts, rebuilds and VM reboots. Running `make down` and `make up`
 again keeps the database and the website intact.
 
 The data is only removed by `make clean` (removes the volumes) or `make fclean`
-(also deletes the host folder) —> use these when you want a fresh start.
+(also deletes the host folder) -> use these when you want a fresh start.
 
 ### Verify persistence
 
 1. Create a post or a comment on the website.
 2. Reboot the VM (or run `make down` then `make up`).
-3. Reopen `https://maria-ol.42.fr` —> the change is still there.
+3. Reopen `https://login.42.fr` -> the change is still there.
+
+## 7. Troubleshooting
+
+Bugs we hit while building the stack, their root cause, and the fix.
+
+| # | Symptom | Cause | Fix |
+|---|---------|-------|-----|
+| 1 | `[setup.sh] skipping initialization` forever; WordPress can't connect (`wp_user` never existed) | `apt install mariadb-server` initializes a DB in `/var/lib/mysql` *during build* -> image born "dirty"; the volume copies it, so the first-run check never triggers | `rm -rf /var/lib/mysql/*` in the Dockerfile, so the image starts clean |
+| 2 | `Can't start server: Bind on unix socket: No such file or directory` | `/run/mysqld` didn't exist and the data dirs weren't owned by the `mysql` user | `mkdir -p /run/mysqld` + `chown -R mysql:mysql ...` in `setup.sh` (see detail below) |
+| 3 | After `make fclean`, images still listed in `docker images` | `fclean` looked for `inception-mariadb`, but the image is named `mariadb` (`image: mariadb` in compose) | Use the real image names (`X` instead of `$(NAME)-X`) in the `fclean` target |
+| 4 | Orphan `srcs_mariadb`, `srcs_wordpress`, `srcs_inception` objects appear | Running `docker compose up` directly (without `-p inception`) uses the `srcs` folder name as the project prefix | Always use `make` (forces `-p inception`); remove leftovers with `docker volume rm <volume>` / `docker network rm <network>` |
+
+### Bug 2 detail - socket directory & ownership
+
+The fix added to `setup.sh`:
+
+```bash
+mkdir -p /run/mysqld
+chown -R mysql:mysql /run/mysqld /var/lib/mysql
+```
+
+- `mkdir -p /run/mysqld` creates the folder where MariaDB puts its socket
+  (`/run/mysqld/mysqld.sock`), a special file that allows local connections to
+  the database. The Debian image doesn't create it automatically, and MariaDB
+  fails to start if it's missing. `-p` means "no error if it already exists".
+- `chown -R mysql:mysql` gives ownership of both folders, the socket dir
+  (`/run/mysqld`) and the data dir (`/var/lib/mysql`), to the `mysql` user.
+  MariaDB runs as `mysql` (not root, for security, see `user = mysql` in
+  `50-server.cnf`), but freshly created folders belong to root. Without the
+  `chown`, the `mysql` user can't write to them -> "permission denied" and the
+  server won't come up.

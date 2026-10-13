@@ -43,8 +43,7 @@ Open **https://maria-ol.42.fr** in your browser.
 > The certificate is self-signed, so the browser shows a security warning the
 > first time. This is expected — accept it to continue.
 
-![The Inception website](./assets/site.png)
-<!-- TODO: replace with a real screenshot of the site -->
+![The Inception website](assets/image-1.png)
 
 ### The admin panel
 
@@ -52,11 +51,7 @@ The WordPress administration dashboard is available at
 **https://maria-ol.42.fr/wp-admin**. Sign in with the administrator account
 (see [Credentials](#4-credentials) below).
 
-![The WordPress admin dashboard](./assets/admin.png)
-<!-- TODO: replace with a real screenshot of the admin panel -->
-
-> 🚧 **TODO:** confirm the exact admin URL and login flow after accessing the
-> site on the VM.
+![The WordPress admin dashboard](assets/image.png)
 
 ## 4. Credentials
 
@@ -94,20 +89,9 @@ make status
 All three containers (`nginx`, `wordpress`, `mariadb`) should be listed and
 running. A healthy stack looks roughly like this:
 
-```text
-CONTAINERS
-
-CONTAINER ID   IMAGE       STATUS         PORTS                  NAMES
-a1b2c3d4e5f6   nginx       Up 2 minutes   0.0.0.0:443->443/tcp   nginx
-b2c3d4e5f6a7   wordpress   Up 2 minutes   9000/tcp               wordpress
-c3d4e5f6a7b8   mariadb     Up 2 minutes   3306/tcp               mariadb
-```
-
+![make status](assets/image-2.png)
 Note that only `nginx` publishes a port to the host (`0.0.0.0:443->443`), while
 `wordpress` and `mariadb` keep their ports internal to the Docker network.
-
-<!-- TODO: replace the block above with a real (colored) screenshot of
-     `make status` from the VM -> ./assets/make-status.png -->
 
 If something looks wrong, follow the logs to see what is happening:
 
