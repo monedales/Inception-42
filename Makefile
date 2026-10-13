@@ -70,9 +70,9 @@ fclean: clean
 	@if [ -d $(DATA) ]; then \
 		docker run --rm -v /home/$(LOGIN):/host debian:bookworm rm -rf /host/data > $(HIDE) && echo " $(FCLEANED)" ; \
 	fi
-	@if [ -n "$$(docker image ls $(NAME)-nginx -q)" ]; then docker image rm -f $(NAME)-nginx > $(HIDE) && echo " $(NX_FLN)" ; fi
-	@if [ -n "$$(docker image ls $(NAME)-wordpress -q)" ]; then docker image rm -f $(NAME)-wordpress > $(HIDE) && echo " $(WP_FLN)" ; fi
-	@if [ -n "$$(docker image ls $(NAME)-mariadb -q)" ]; then docker image rm -f $(NAME)-mariadb > $(HIDE) && echo " $(DB_FLN)" ; fi
+	@if [ -n "$$(docker image ls nginx -q)" ]; then docker image rm -f nginx > $(HIDE) && echo " $(NX_FLN)" ; fi
+	@if [ -n "$$(docker image ls wordpress -q)" ]; then docker image rm -f wordpress > $(HIDE) && echo " $(WP_FLN)" ; fi
+	@if [ -n "$$(docker image ls mariadb -q)" ]; then docker image rm -f mariadb > $(HIDE) && echo " $(DB_FLN)" ; fi
 
 # Full rebuild from scratch (runs fclean, which is destructive)
 re: fclean all
