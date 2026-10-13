@@ -15,8 +15,7 @@ if [ ! -f /etc/nginx/ssl/inception.crt ]; then
 	openssl req -x509 -nodes -days 365 -newkey rsa:4096 \
 		-keyout /etc/nginx/ssl/inception.key \
 		-out /etc/nginx/ssl/inception.crt \
-		-subj "/C=${CERT_COUNTRY}/ST=${CERT_STATE}/L=${CERT_CITY}/O=${CERT_ORG}/OU=${CERT_UNIT}/CN=${CERT_CN}" \
-		> /dev/null 2>&1
+		-subj "/C=${CERT_COUNTRY}/ST=${CERT_STATE}/L=${CERT_CITY}/O=${CERT_ORG}/OU=${CERT_UNIT}/CN=${CERT_CN}"
 fi
 
 echo "[nginx] Starting nginx..."

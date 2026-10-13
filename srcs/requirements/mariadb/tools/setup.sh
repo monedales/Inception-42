@@ -23,7 +23,7 @@ if [ ! -d "/var/lib/mysql/mysql" ]; then
 	echo "[setup.sh] First run: initializing MariaDB..."
 
 	# Create the internal system tables in the data directory
-	mariadb-install-db --user=mysql --datadir=/var/lib/mysql > /dev/null
+	mariadb-install-db --user=mysql --datadir=/var/lib/mysql
 
 	# Start a TEMPORARY server in the background, with networking off, just to
 	# run our SQL setup safely (no external connections during init).
@@ -31,7 +31,7 @@ if [ ! -d "/var/lib/mysql/mysql" ]; then
 	MARIADB_PID=$!
 
 	# Wait until the temporary server is ready to accept local commands
-	until mariadb-admin ping --silent 2>/dev/null; do
+	until mariadb-admin ping --silent; do
 		sleep 1
 	done
 
