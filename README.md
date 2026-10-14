@@ -191,9 +191,7 @@ pair-programming and study aid. It helped with:
   service (NGINX as reverse proxy + TLS, php-fpm, MariaDB), how Docker
   networking and volumes work, PID 1 and the entrypoint lifecycle, and why
   each design choice matters.
-- **Reviewing and explaining** the configuration files and scripts
-  line by line, so every decision in the Dockerfiles, docker-compose.yml,
-  setup scripts and Makefile is understood and can be justified.
+- **Reviewing and explaining** the student’s drafts of the configuration files and scripts, catching mistakes and explaining each fix, line by line.
 - **Debugging**: reading container logs together to track down issues -> most
   notably the MariaDB first-run problem (the database was initialized during
   the image build, which prevented the init script from running on an empty
