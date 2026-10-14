@@ -182,9 +182,23 @@ by NGINX directly.
 - [Educative](https://www.educative.io/blog/docker-compose-tutorial) — Docker Compose Tutorial
 
 
+### AI Usage
 
-### AI usage
+AI (Claude, by Anthropic) was used throughout this project as a
+pair-programming and study aid. It helped with:
 
-The AI assistant Claude (Anthropic), via Claude Code, was used as a pair-programming aid throughout the project, mainly for:
+- **Understanding the concepts** before writing any code: the role of each
+  service (NGINX as reverse proxy + TLS, php-fpm, MariaDB), how Docker
+  networking and volumes work, PID 1 and the entrypoint lifecycle, and why
+  each design choice matters.
+- **Reviewing and explaining** the configuration files and scripts
+  line by line, so every decision in the Dockerfiles, docker-compose.yml,
+  setup scripts and Makefile is understood and can be justified.
+- **Debugging**: reading container logs together to track down issues -> most
+  notably the MariaDB first-run problem (the database was initialized during
+  the image build, which prevented the init script from running on an empty
+  volume) and the socket/permission setup.
+- **Documentation**: structuring and reviewing the README, USER_DOC and
+  DEV_DOC.
 
-The AI did not write the logic or any scripts — those parts were implemented and debugged by hand by the student, with the AI acting as a review aid, debugging support, and study resource.
+All scripts were implemented and debugged by hand by the student, with the AI acting as a review aid, debugging support, and study resource.
