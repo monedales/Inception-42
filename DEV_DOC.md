@@ -3,6 +3,10 @@
 This document describes how to set up, build, run and manage the Inception
 stack as a developer.
 
+> **Note:** throughout this guide, replace `login` with your own 42 login
+> (for this project: `maria-ol`). Paths, the domain and the user all follow
+> that pattern.
+
 ## 0. Install Docker on the VM 🐳
 
 If Docker isn't installed on the VM yet, follow these steps first (based on a
